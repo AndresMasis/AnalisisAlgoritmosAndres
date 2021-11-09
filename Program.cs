@@ -14,14 +14,14 @@ namespace Giraffe
          Any position has the equal probability of being chosen
          It is supossed that all the parts of the square are equally filled, theorically there wont a big agrupation 
          */
-        static double MonteCarloUniform()
+        static double MonteCarloUniform(int resources)
         {
             double circlePoints = 0;  // Amount of points that fall inside the circle
             double squarePoints = 0;  // Amount of points that fall inside the square (total of all points)
 
             double X, Y;  // Variables for 2d coordenates
 
-            while (squarePoints < 1000000)
+            while (squarePoints < resources)
             {
                 // Sets a random x, y position
                 // Its uniform, therefore any number in the interval has the same chance of being returned
@@ -66,22 +66,27 @@ namespace Giraffe
          More points will be generated around the mean and few will appear far from it
          How far a point can appear is determined by the standard desviation 
          */
-        static double MonteCarloNormal()
+        static double MonteCarloNormal(int resources)
         {
             double circlePoints = 0;  // Amount of points that fall inside the circle
             double squarePoints = 0; // Amount of points that fall inside the square (total of all points)
 
             double X, Y;  // Variables for 2d coordenates
 
-            while (squarePoints < 1000000)
+            while (squarePoints < resources)
             {
                 // Sets a random x, y position
                 // Its normal, therefore numbers closer to the mean have higger probability of being selected ad the ones far from the mean have low probability
                 X = generateNormalValue();
                 Y = generateNormalValue();
 
+                if (X > 1 || Y > 1)
+                {
+                    continue;
+                }
+
                 // Determines if the point is inside the circle
-                if (X * X + Y * Y <= 1)
+                if (X*X + Y*Y <= 1)
                 {
                     circlePoints++;
                 }
@@ -95,10 +100,35 @@ namespace Giraffe
         }
 
 
-
+        // testing
         static void Main(string[] args)
         {
-            Console.WriteLine(MonteCarloNormal());
+            const int resources = 100000;  // The amount of resources that will be destined for the approximation, remmeber both are MonteCarlo
+
+            // Needed to get an average later
+            double normalSum = 0;
+            double uniformSum = 0;
+
+            // Hold a single approximation
+            double uniform;
+            double normal;
+
+            const short iterations = 100;
+            for (int i = 0; i < iterations; i++)
+            {
+                // Gets and prints a single uniform approximation, also add it for the average
+                uniform = MonteCarloUniform(resources);
+                Console.WriteLine(uniform);
+                uniformSum += uniform;
+
+                // Gets and prints a single normal approximation, also add it for the average
+                normal = MonteCarloNormal(resources);
+                Console.WriteLine(normal);
+                normalSum += normal;
+            }
+
+            Console.WriteLine("Uniform average: " + (uniformSum/iterations));  // Prints the uniform average
+            Console.WriteLine("Normal average: " + (normalSum /iterations));  // Prints the normal average
         }
 
 
